@@ -21,6 +21,7 @@
 import QtQuick 2.13
 import QtQuick.Controls 2.13
 import "BasicComponents"
+import "Panels"
 
 SplitView {
     id: mainStack
@@ -29,7 +30,7 @@ SplitView {
     property bool showExplorer
     property bool showEditors
 
-    Panel {
+    Browser {
         visible: showExplorer
         implicitWidth: 200
         SplitView.minimumWidth: 200
