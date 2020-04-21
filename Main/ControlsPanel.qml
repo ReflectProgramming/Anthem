@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 Joshua Wade
+    Copyright (C) 2019, 2020 Joshua Wade
 
     This file is part of Anthem.
 
@@ -18,8 +18,8 @@
                         <https://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.13
-import QtGraphicalEffects 1.13
+import QtQuick 2.14
+import QtGraphicalEffects 1.14
 import QtQuick.Dialogs 1.2
 
 import "BasicComponents"
@@ -28,8 +28,6 @@ import "Menus"
 
 Panel {
     height: 44
-
-    signal closeRequested()
 
     Item {
         id: controlPanelSpacer
@@ -76,7 +74,6 @@ Panel {
                 id: fileMenu
                 menuX: 0
                 menuY: parent.height
-                maxHeight: 200
 
                 menuItems: [
                     {
@@ -92,7 +89,7 @@ Panel {
                         shortcut: 'Ctrl+O',
                         hoverText: 'Open an existing project',
                         onTriggered: () => {
-                            loadFileDialog.open();
+                            saveLoadHandler.openLoadDialog();
                         }
                     },
                     {
@@ -103,14 +100,14 @@ Panel {
                         shortcut: 'Ctrl+S',
                         hoverText: 'Save this project',
                         onTriggered: () => {
-                            save();
+                            saveLoadHandler.save();
                         }
                     },
                     {
                         text: 'Save a_s...',
                         hoverText: 'Save this project to a different file',
                         onTriggered: () => {
-                            saveFileDialog.open();
+                            saveLoadHandler.openSaveDialog();
                         }
                     },
                     {
@@ -120,9 +117,257 @@ Panel {
                         text: 'Ex_it',
                         hoverText: 'Quit Anthem',
                         onTriggered: () => {
-                            closeRequested();
+                            saveLoadHandler.closeWithSavePrompt();
                         }
-                    }
+                    },/*
+                    {
+                        separator: true
+                    },
+                    {
+                        text: 'Submenu test',
+                        submenu: [
+                            {
+                                text: 'P_iano roll'
+                            },
+                            {
+                                text: 'Graph editor'
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'R_ename, color and icon..'
+                            },
+                            {
+                                text: 'Change color...'
+                            },
+                            {
+                                text: 'Change icon...'
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'L_oad sample...'
+                            },
+                            {
+                                text: 'Cut_ itself'
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'I_nsert'
+                            },
+                            {
+                                text: 'Replace'
+                            },
+                            {
+                                text: 'C_lone'
+                            },
+                            {
+                                text: 'D_elete...'
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'Assign to new instrument track...'
+                            },
+                            {
+                                newColumn: true
+                            },
+                            {
+                                text: 'Cut_'
+                            },
+                            {
+                                text: 'Co_py'
+                            },
+                            {
+                                text: 'P_aste',
+                                disabled: true
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'Fill each 2_ steps'
+                            },
+                            {
+                                text: 'Fill each 4_ steps'
+                            },
+                            {
+                                text: 'Fill each 8_ steps'
+                            },
+                            {
+                                text: 'Advanced fill...'
+                            },
+                            {
+                                text: 'Advanced fill...'
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'Rotate left',
+                                shortcut: 'Shift+Ctrl+Left'
+                            },
+                            {
+                                text: 'Rotate right',
+                                shortcut: 'Shift+Ctrl+Right'
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'MIDI channel through'
+                            },
+                            {
+                                text: 'Receive n_otes from',
+                                submenu: [
+                                    {text: 'Typing keyboard'},
+                                    {
+                                        text: 'Touch keyboard',
+                                        submenu: [
+                                            {text: 'abc'},
+                                            {text: 'abc'},
+                                            {text: 'abc'},
+                                            {text: 'abc'},
+                                            {newColumn: true},
+                                            {
+                                                text: 'abcdefghijklmnopqrstuvwxyz',
+                                                submenu: [
+                                                    {text: 'abc'},
+                                                    {text: 'abc'},
+                                                    {text: 'abc'},
+                                                    {text: 'abc'},
+                                                    {newColumn: true},
+                                                    {text: 'abc'},
+                                                    {text: 'abc'},
+                                                    {text: 'abc'},
+                                                    {
+                                                        text: 'abcdefghijklmnopqrstuvwxyz',
+                                                        submenu: [
+                                                            {text: 'abc'},
+                                                            {text: 'abc'},
+                                                            {text: 'abc'},
+                                                            {text: 'abc'},
+                                                            {newColumn: true},
+                                                            {text: 'abc'},
+                                                            {text: 'abc'},
+                                                            {text: 'abc'},
+                                                            {
+                                                                text: 'abcdefghijklmnopqrstuvwxyz',
+                                                                submenu: [
+                                                                    {text: 'abc'},
+                                                                    {text: 'abc'},
+                                                                    {text: 'abc'},
+                                                                    {text: 'abc'},
+                                                                    {newColumn: true},
+                                                                    {text: 'abc'},
+                                                                    {text: 'abc'},
+                                                                    {text: 'abc'},
+                                                                    {
+                                                                        text: 'abcdefghijklmnopqrstuvwxyz',
+                                                                        submenu: [
+                                                                            {text: 'abc'},
+                                                                            {text: 'abc'},
+                                                                            {text: 'abc'},
+                                                                            {text: 'abc'},
+                                                                            {newColumn: true},
+                                                                            {text: 'abc'},
+                                                                            {text: 'abc'},
+                                                                            {text: 'abc'},
+                                                                            {
+                                                                                text: 'abcdefghijklmnopqrstuvwxyz',
+                                                                                submenu: [
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {text: 'abcdefghijklmnopqrstuvwxyz'},
+                                                                                    {newColumn: true},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {newColumn: true},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {text: 'abcdefg'},
+                                                                                    {newColumn: true},
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+
+                                ]
+                            },
+                            {
+                                separator: true
+                            },
+                            {
+                                text: 'Create DirectWave instrument...'
+                            },
+                            {
+                                text: 'Burn MIDI to',
+                                submenu: [
+                                    {text: 'C_urrent pattern'},
+                                    {text: 'N_ew pattern'}
+                                ]
+                            },
+                        ]
+                    }*/
                 ]
             }
         }
@@ -140,7 +385,7 @@ Panel {
             imageWidth: 16
             imageHeight: 16
 
-            onPress: save()
+            onPress: saveLoadHandler.save()
         }
 
         Button {
@@ -236,7 +481,7 @@ Panel {
                 defaultButtonWidth: 32
                 defaultButtonHeight: 32
 
-                model: ListModel {
+                buttons: ListModel {
                     ListElement {
                         isToggleButton: true
                         imageSource: "Images/Play.svg"

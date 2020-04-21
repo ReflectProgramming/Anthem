@@ -57,9 +57,9 @@
   Good luck.
 */
 
-import QtQuick 2.13
+import QtQuick 2.14
 
-import "../Global"
+import '../Global'
 
 Column {
     property var columnItems
@@ -67,19 +67,14 @@ Column {
     property int startIndex: 0
     width: {
         if (minWidth && biggestItemWidth < minWidth) {
-            if (width !== minWidth) {
-                return minWidth;
-            }
+            return minWidth;
         }
         else if (maxWidth && biggestItemWidth > maxWidth) {
-            if (width !== maxWidth) {
-                return maxWidth;
-            }
+            return maxWidth;
         }
         else {
             return biggestItemWidth;
         }
-        return width;
     }
 
     function itemAt(index) {
@@ -129,7 +124,7 @@ Column {
                 anchors.left: parent.left
                 font.family: Fonts.notoSansRegular.name
                 font.pixelSize: 11
-                text: modelData.text ? qsTr(modelData.text) : ""
+                text: modelData.text ? qsTr(modelData.text) : ''
             }
 
             Text {
@@ -143,7 +138,7 @@ Column {
                 anchors.right: parent.right
                 font.family: Fonts.notoSansRegular.name
                 font.pixelSize: 9
-                text: modelData.shortcut ? modelData.shortcut : ""
+                text: modelData.shortcut ? modelData.shortcut : ''
             }
 
             MouseArea {
@@ -154,7 +149,7 @@ Column {
                     selectedIndex = index + startIndex;
                     attemptedSelectedIndex = index + startIndex;
 
-                    Anthem.displayStatusMessage(modelData.hoverText ? modelData.hoverText : '');
+                    globalStore.statusMessage = modelData.hoverText ? modelData.hoverText : '';
 
                     if (openedSubmenuIndex > -1 && !blockSubmenuClose) {
                         closeSubmenus(id);

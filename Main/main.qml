@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2019 Joshua Wade
+    Copyright (C) 2019, 2020 Joshua Wade
 
     This file is part of Anthem.
 
@@ -18,12 +18,13 @@
                         <https://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.13
-import QtQuick.Window 2.13
-import QtQuick.Shapes 1.13
-import QtGraphicalEffects 1.13
+import QtQuick 2.14
+import QtQuick.Window 2.14
+import QtQuick.Shapes 1.14
+import QtGraphicalEffects 1.14
 import QtQuick.Dialogs 1.2
 import "BasicComponents"
+import "BasicComponents/GenericTooltip"
 import "Dialogs"
 import "Menus"
 import "Global"
@@ -39,124 +40,22 @@ Window {
     property int tabsRemaining: -1
     readonly property int margin: 5
 
+    /*
+        This stores data used all over the UI. It can be accessed from almost
+        anywhere by calling globalStore.(something) Because Qml (tm) (:
+    */
+    GlobalStore {
+        id: globalStore
+    }
+
     color: "#454545"
 
-    SaveDiscardCancelDialog {
-        id: saveConfirmDialog
-        title: "Unsaved changes"
-        onCancelPressed: {
-            isClosing = false;
-            tabsRemaining = -1;
-        }
-        onDiscardPressed: {
-            closeWithSavePrompt();
-        }
-        onSavePressed: {
-            save();
-        }
+    SaveLoadHandler {
+        id: saveLoadHandler
     }
 
     InformationDialog {
         id: infoDialog
-    }
-
-    Connections {
-        target: Anthem
-        onSaveDialogRequest: {
-            saveFileDialog.open();
-        }
-        onInformationDialogRequest: {
-            infoDialog.title = title;
-            infoDialog.message = notification;
-            infoDialog.show();
-        }
-        onStatusMessageRequest: {
-            statusText.text = message;
-        }
-    }
-
-    function closeWithSavePrompt() {
-        let checkForUnsaved = () => {
-            if (!isClosing) {
-                isClosing = true;
-                tabsRemaining = tabGroup.children.length;
-            }
-            if (Anthem.getNumOpenProjects() <= 0) {
-                Qt.quit();
-            }
-            else if (Anthem.projectHasUnsavedChanges(0)) {
-                Anthem.switchActiveProject(0);
-                tabGroup.selectTab(0);
-
-                let projectName = tabGroup.children[0].title;
-                saveConfirmDialog.message = `${projectName} has unsaved changes. Would you like to save before closing?`;
-                saveConfirmDialog.show();
-
-                return;
-            }
-            else {
-                closeWithSavePrompt();
-                return;
-            }
-        }
-
-        if (isClosing) {
-            if (tabGroup.tabCount <= 1) {
-                Qt.quit();
-            }
-
-            Anthem.closeProject(0);
-            tabGroup.getTabAtIndex(0).Component.destruction.connect(checkForUnsaved);
-            tabGroup.removeTab(0);
-            tabsRemaining = tabsRemaining - 1;
-        }
-        else {
-            checkForUnsaved();
-        }
-    }
-
-    function save() {
-        if (Anthem.isProjectSaved(Anthem.activeProjectIndex)) {
-            Anthem.saveActiveProject();
-            if (isClosing) {
-                closeWithSavePrompt();
-            }
-        }
-        else {
-            saveFileDialog.open();
-        }
-    }
-
-
-    FileDialog {
-        id: loadFileDialog
-        title: "Select a project"
-        selectExisting: true
-        folder: shortcuts.home
-        nameFilters: ["Anthem project files (*.anthem)"]
-        onAccepted: {
-            Anthem.loadProject(loadFileDialog.fileUrl.toString().substring(8));
-        }
-    }
-
-    FileDialog {
-        id: saveFileDialog
-        title: "Save as"
-        selectExisting: false
-        folder: shortcuts.home
-        nameFilters: ["Anthem project files (*.anthem)"]
-        onAccepted: {
-            Anthem.saveActiveProjectAs(saveFileDialog.fileUrl.toString().substring(8));
-            Anthem.notifySaveCompleted();
-            if (isClosing) {
-                closeWithSavePrompt();
-            }
-        }
-        onRejected: {
-            Anthem.notifySaveCancelled();
-            isClosing = false;
-            tabsRemaining = -1;
-        }
     }
 
     ResizeHandles {
@@ -188,14 +87,14 @@ Window {
 
     Shortcut {
         sequence: "Ctrl+S"
-        onActivated: save()
+        onActivated: saveLoadHandler.save()
     }
 
     Connections {
         target: mainWindow
         onClosing: {
             close.accepted = false;
-            closeWithSavePrompt()
+            saveLoadHandler.closeWithSavePrompt()
         }
     }
 
@@ -269,7 +168,7 @@ Window {
                 }
 
                 onClosePressed: {
-                    mainWindow.closeWithSavePrompt();
+                    saveLoadHandler.closeWithSavePrompt();
                 }
             }
         }
@@ -292,7 +191,6 @@ Window {
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.right: parent.right
-            onCloseRequested: mainWindow.closeWithSavePrompt()
         }
 
         MainStack {
@@ -352,7 +250,7 @@ Window {
                 }
             }
 
-            model: explorerTabsModel
+            buttons: explorerTabsModel
         }
 
         Rectangle {
@@ -396,7 +294,7 @@ Window {
                 }
             }
 
-            model: layoutTabsModel
+            buttons: layoutTabsModel
         }
 
         Rectangle {
@@ -446,7 +344,7 @@ Window {
                 }
             }
 
-            model: editorPanelTabsModel
+            buttons: editorPanelTabsModel
         }
 
         Rectangle {
@@ -465,7 +363,7 @@ Window {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.leftMargin: 20
-            text: ""
+            text: globalStore.statusMessage
             font.family: Fonts.notoSansRegular.name
             font.pixelSize: 11
             color: Qt.rgba(1, 1, 1, 0.6)
@@ -487,6 +385,11 @@ Window {
             pressed: true
             hoverMessage: pressed ? "Hide controller rack" : "Show controller rack"
         }
+    }
+
+    TooltipManager {
+        anchors.fill: parent
+        id: tooltipManager
     }
 
     Menus {

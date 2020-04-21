@@ -18,8 +18,8 @@
                         <https://www.gnu.org/licenses/>.
 */
 
-import QtQuick 2.13
-import QtGraphicalEffects 1.13
+import QtQuick 2.14
+import QtGraphicalEffects 1.14
 import io.github.anthem.utilities.mousehelper 1.0
 
 /*
@@ -481,7 +481,7 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         onExited: {
-            Anthem.displayStatusMessage('');
+            globalStore.statusMessage = '';
 
             if (openedSubmenuIndex > -1) {
                 if (blockSubmenuClose) {
